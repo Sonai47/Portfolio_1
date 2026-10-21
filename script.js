@@ -1,5 +1,5 @@
 /**
- * Developer Portfolio System - Alex Kumar
+ * Developer Portfolio System - Ananya Sharma
  * Vanilla JS Interaction Script
  */
 
@@ -17,32 +17,64 @@ document.addEventListener('DOMContentLoaded', () => {
 function initMobileNavigation() {
   const toggleBtn = document.getElementById('navToggle');
   const navMenu = document.getElementById('navMenu');
+  const navBackdrop = document.getElementById('navBackdrop');
   const navLinks = document.querySelectorAll('.nav-link');
 
   if (!toggleBtn || !navMenu) return;
 
-  toggleBtn.addEventListener('click', () => {
-    const isOpen = navMenu.classList.toggle('open');
-    toggleBtn.setAttribute('aria-expanded', isOpen);
+  function closeMenu() {
+    navMenu.classList.remove('open');
+    toggleBtn.classList.remove('open');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    if (navBackdrop) navBackdrop.classList.remove('open');
+    document.body.classList.remove('menu-locked');
+  }
+
+  function openMenu() {
+    navMenu.classList.add('open');
+    toggleBtn.classList.add('open');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    if (navBackdrop) navBackdrop.classList.add('open');
+    document.body.classList.add('menu-locked');
+  }
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = navMenu.classList.contains('open');
+    if (isOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
   });
 
-  // Close mobile menu when a nav link is clicked
+  if (navBackdrop) {
+    navBackdrop.addEventListener('click', closeMenu);
+  }
+
+  // Close mobile menu when any nav link is clicked
   navLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      if (navMenu.classList.contains('open')) {
-        navMenu.classList.remove('open');
-        toggleBtn.setAttribute('aria-expanded', 'false');
-      }
-    });
+    link.addEventListener('click', closeMenu);
   });
 
-  // Close when clicking outside the navbar
+  // Close when clicking outside
   document.addEventListener('click', (e) => {
-    if (!navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
-      if (navMenu.classList.contains('open')) {
-        navMenu.classList.remove('open');
-        toggleBtn.setAttribute('aria-expanded', 'false');
-      }
+    if (navMenu.classList.contains('open') && !navMenu.contains(e.target) && !toggleBtn.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navMenu.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+
+  // Close menu if window is resized past mobile breakpoint
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && navMenu.classList.contains('open')) {
+      closeMenu();
     }
   });
 }
